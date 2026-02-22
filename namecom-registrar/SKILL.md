@@ -1,6 +1,7 @@
 ---
 name: namecom-registrar
 description: Autonomous domain registrar and DNS manager using the Name.com CORE API. Use when the user asks to search for, buy, or register domains, manage DNS records (A, AAAA, CNAME, MX, TXT), solve ACME DNS-01 challenges for TLS certificates, or update dynamic DNS for residential/home-lab setups.
+metadata: {"openclaw": {"requires": {"bins": ["node"], "env": ["NAMECOM_USERNAME", "NAMECOM_TOKEN"]}, "primaryEnv": "NAMECOM_TOKEN", "homepage": "https://github.com/openclaw/namecom-clawbot"}}
 ---
 
 # Name.com Domain Registrar & DNS Manager

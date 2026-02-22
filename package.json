@@ -1,0 +1,41 @@
+{
+  "name": "namecom-clawbot",
+  "version": "0.0.1",
+  "description": "OpenClaw skill package for Name.com domain registration and DNS management via the CORE API",
+  "license": "MIT",
+  "author": "Pat Ramsey",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/patramsey/namecom-clawbot.git"
+  },
+  "keywords": [
+    "mcp",
+    "namecom",
+    "dns",
+    "domain",
+    "registrar",
+    "ddns",
+    "openclaw"
+  ],
+  "type": "module",
+  "main": "dist/namecom-registrar/index.js",
+  "bin": {
+    "namecom-clawbot": "dist/namecom-registrar/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node dist/namecom-registrar/index.js",
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "typescript": "^5.7.3"
+  }
+}

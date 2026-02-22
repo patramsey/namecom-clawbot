@@ -1,7 +1,7 @@
 ---
 name: namecom-registrar
 description: Autonomous domain registrar and DNS manager using the Name.com CORE API. Use when the user asks to search for, buy, or register domains, manage DNS records (A, AAAA, CNAME, MX, TXT), solve ACME DNS-01 challenges for TLS certificates, or update dynamic DNS for residential/home-lab setups.
-metadata: {"openclaw": {"requires": {"bins": ["node", "npm"], "env": ["NAMECOM_USERNAME", "NAMECOM_TOKEN"]}, "primaryEnv": "NAMECOM_TOKEN", "homepage": "https://github.com/patramsey/namecom-clawbot", "install": [{"id": "node", "kind": "node", "package": "namecom-clawbot", "bins": ["namecom-clawbot"], "label": "Install namecom-clawbot MCP server (npm)"}]}}
+metadata: {"openclaw": {"requires": {"bins": ["node", "npm"], "env": ["NAMECOM_USERNAME", "NAMECOM_TOKEN", "NAMECOM_USERNAME_TEST", "NAMECOM_TOKEN_TEST"]}, "primaryEnv": "NAMECOM_TOKEN", "homepage": "https://github.com/patramsey/namecom-clawbot", "install": [{"id": "node", "kind": "node", "package": "namecom-clawbot", "bins": ["namecom-clawbot"], "label": "Install namecom-clawbot MCP server (npm)"}]}}
 ---
 
 # Name.com Domain Registrar & DNS Manager
@@ -16,10 +16,16 @@ Set credentials before starting the server:
 |---|---|---|
 | `NAMECOM_USERNAME` | Yes | Name.com account username |
 | `NAMECOM_TOKEN` | Yes | Name.com API token |
+| `NAMECOM_USERNAME_TEST` | Optional | Sandbox username (no real charges) |
+| `NAMECOM_TOKEN_TEST` | Optional | Sandbox API token |
 
-Generate tokens at **Account > Security > API Access**.
+Generate tokens at **Account > Security > API Access**. For sandbox testing, create sandbox credentials there and set only `NAMECOM_USERNAME_TEST` and `NAMECOM_TOKEN_TEST` (leave production vars unset); the server then targets the sandbox API.
 
-For sandbox testing (no real charges), set `NAMECOM_USERNAME_TEST` and `NAMECOM_TOKEN_TEST` instead. Create sandbox credentials at <https://www.name.com> when creating your API token. When sandbox vars are set and production vars are absent, the server automatically targets the sandbox API.
+## Security & trust
+
+- **Token scope:** The API token has full account access (domains, DNS, purchases). Use a token you trust; prefer sandbox credentials until you have verified behavior.
+- **Purchases:** `register_domain` performs a zero-click purchase using the account’s default payment profile (no extra confirmation step). Verify payment settings and test with sandbox first.
+- **Install:** This skill installs the npm package `namecom-clawbot`. Review the [GitHub repo](https://github.com/patramsey/namecom-clawbot) and the [npm package](https://www.npmjs.com/package/namecom-clawbot) before installing. To limit risk, run the MCP server in an isolated environment (e.g. container or VM) and use least-privilege or sandbox credentials.
 
 ## Running the Server
 

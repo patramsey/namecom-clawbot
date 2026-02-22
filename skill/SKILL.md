@@ -19,7 +19,7 @@ Set credentials before starting the server:
 
 Generate tokens at **Account > Security > API Access**.
 
-For sandbox testing (no real charges), set `NAMECOM_USERNAME_TEST` and `NAMECOM_TOKEN_TEST` instead. Create sandbox credentials at <https://dev.name.com>. When sandbox vars are set and production vars are absent, the server automatically targets the sandbox API.
+For sandbox testing (no real charges), set `NAMECOM_USERNAME_TEST` and `NAMECOM_TOKEN_TEST` instead. Create sandbox credentials at <https://www.name.com> when creating your API token. When sandbox vars are set and production vars are absent, the server automatically targets the sandbox API.
 
 ## Running the Server
 

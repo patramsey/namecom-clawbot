@@ -1,8 +1,8 @@
 # namecom-clawbot
 
-MCP server that gives an AI agent autonomous control over domain registration and DNS management through the [name.com CORE API](https://docs.name.com/api/v1/overview).
+MCP server that gives an AI agent autonomous control over domain registration and DNS management through the [Name.com CORE API](https://docs.name.com/api/v1/overview).
 
-Works with new purchases **and** domains you already own at name.com.
+Works with new purchases **and** domains you already own at Name.com. Ships with an [AgentSkills](https://agentskills.io/)-compatible `SKILL.md` and is published on [ClawHub](https://clawhub.ai/patramsey/namecom-registrar) for one-command install into OpenClaw.
 
 > **v0.0.1** — early release. The nine core tools are functional but the API surface may change.
 

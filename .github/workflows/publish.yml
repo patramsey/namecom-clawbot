@@ -21,6 +21,11 @@ jobs:
 
       - run: npm pkg fix
 
+      - name: Set version from release tag
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          npm pkg set version="${TAG#v}"
+
       - run: npm ci
 
       - run: npm run build

@@ -43,7 +43,7 @@ Add to your Cursor / Claude Desktop / OpenClaw MCP config:
   "mcpServers": {
     "namecom-registrar": {
       "command": "node",
-      "args": ["/absolute/path/to/namecom-clawbot/dist/namecom-registrar/index.js"],
+      "args": ["/absolute/path/to/namecom-clawbot/dist/src/index.js"],
       "env": {
         "NAMECOM_USERNAME": "your-username",
         "NAMECOM_TOKEN": "your-api-token"

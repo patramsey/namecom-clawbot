@@ -30,7 +30,7 @@ Generate tokens at **Account → Security → API Access** (production) or at <h
 npm install && npm run build
 
 # Run (stdio transport — used by MCP hosts like Cursor)
-node dist/namecom-registrar/index.js
+node dist/src/index.js
 ```
 
 Or add to your MCP host config:
@@ -40,7 +40,7 @@ Or add to your MCP host config:
   "mcpServers": {
     "namecom-registrar": {
       "command": "node",
-      "args": ["dist/namecom-registrar/index.js"],
+      "args": ["dist/src/index.js"],
       "env": {
         "NAMECOM_USERNAME": "<your-username>",
         "NAMECOM_TOKEN": "<your-api-token>"

@@ -18,15 +18,15 @@
     "openclaw"
   ],
   "type": "module",
-  "main": "dist/namecom-registrar/index.js",
+  "main": "dist/src/index.js",
   "bin": {
-    "namecom-clawbot": "dist/namecom-registrar/index.js"
+    "namecom-clawbot": "dist/src/index.js"
   },
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "start": "node dist/namecom-registrar/index.js",
+    "start": "node dist/src/index.js",
     "build": "tsc",
     "dev": "tsc --watch",
     "lint": "tsc --noEmit"

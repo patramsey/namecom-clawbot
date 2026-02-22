@@ -1,7 +1,7 @@
 ---
 name: namecom-registrar
 description: Autonomous domain registrar and DNS manager using the Name.com CORE API. Use when the user asks to search for, buy, or register domains, manage DNS records (A, AAAA, CNAME, MX, TXT), solve ACME DNS-01 challenges for TLS certificates, or update dynamic DNS for residential/home-lab setups.
-metadata: {"openclaw": {"requires": {"bins": ["node"], "env": ["NAMECOM_USERNAME", "NAMECOM_TOKEN"]}, "primaryEnv": "NAMECOM_TOKEN", "homepage": "https://github.com/openclaw/namecom-clawbot"}}
+metadata: {"openclaw": {"requires": {"bins": ["node", "npm"], "env": ["NAMECOM_USERNAME", "NAMECOM_TOKEN"]}, "primaryEnv": "NAMECOM_TOKEN", "homepage": "https://github.com/patramsey/namecom-clawbot", "install": [{"id": "node", "kind": "node", "package": "github:patramsey/namecom-clawbot", "bins": ["namecom-clawbot"], "label": "Install namecom-clawbot MCP server from GitHub"}]}}
 ---
 
 # Name.com Domain Registrar & DNS Manager
@@ -14,14 +14,12 @@ Set credentials before starting the server:
 
 | Variable | Required | Description |
 |---|---|---|
-| `NAMECOM_USERNAME` | Yes* | Name.com account username (production) |
-| `NAMECOM_TOKEN` | Yes* | Name.com API token (production) |
-| `NAMECOM_USERNAME_TEST` | Yes* | Sandbox username — append `-test` to your real username |
-| `NAMECOM_TOKEN_TEST` | Yes* | Sandbox API token from dev portal |
+| `NAMECOM_USERNAME` | Yes | Name.com account username |
+| `NAMECOM_TOKEN` | Yes | Name.com API token |
 
-\*Provide either the production pair **or** the sandbox pair. Production takes precedence if both are set.
+Generate tokens at **Account > Security > API Access**.
 
-Generate tokens at **Account → Security → API Access** (production) or at <https://dev.name.com> (sandbox).
+For sandbox testing (no real charges), set `NAMECOM_USERNAME_TEST` and `NAMECOM_TOKEN_TEST` instead. Create sandbox credentials at <https://dev.name.com>. When sandbox vars are set and production vars are absent, the server automatically targets the sandbox API.
 
 ## Running the Server
 

@@ -23,9 +23,9 @@ Generate tokens at **Account > Security > API Access**. For sandbox testing, cre
 
 ## Security & trust
 
-- **Token scope:** The API token has full account access (domains, DNS, purchases). Use a token you trust; prefer sandbox credentials until you have verified behavior.
-- **Purchases:** `register_domain` performs a zero-click purchase using the account’s default payment profile (no extra confirmation step). Verify payment settings and test with sandbox first.
-- **Install:** This skill installs the npm package `namecom-clawbot`. Review the [GitHub repo](https://github.com/patramsey/namecom-clawbot) and the [npm package](https://www.npmjs.com/package/namecom-clawbot) before installing. To limit risk, run the MCP server in an isolated environment (e.g. container or VM) and use least-privilege or sandbox credentials.
+- **Token scope:** The API token has full account access (domains, DNS, purchases). Name.com does not document per-operation token scopes; use sandbox credentials until you have verified behavior. You can harden production tokens with **IP whitelisting** (Account > Security > API Access) to limit where the token can be used.
+- **Purchases:** `register_domain` performs a zero-click purchase using the account’s default payment profile (no extra confirmation step). Verify payment settings and test with sandbox first; for production, consider using a payment method with spending limits or alerts.
+- **Install & supply chain:** This skill installs the npm package `namecom-clawbot`. The package is published with **signed npm provenance** (GitHub Actions), so you can verify on the [npm package page](https://www.npmjs.com/package/namecom-clawbot) that the build matches the [GitHub repo](https://github.com/patramsey/namecom-clawbot). Review the repo and package before installing. To limit risk, run the MCP server in an isolated environment (e.g. container or VM) and use sandbox credentials first.
 
 ## Running the Server
 

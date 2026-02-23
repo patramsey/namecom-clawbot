@@ -119,7 +119,7 @@ Dynamic DNS updater for residential/home-lab IPs:
 1. `search_domain` with `keyword="coolproject"`, `tldFilter=["dev", "app"]`
 2. Pick the cheapest purchasable result
 3. `register_domain` with the chosen name
-4. `manage_dns` → `action="create"`, `host="*"`, `type="A"`, `answer="<fly-io-ip>"`
+4. `manage_dns` → `action="create"`, `host="*"`, `type="A"`, `answer="<ip>"`
 
 **See what domains you already own and check one's details:**
 

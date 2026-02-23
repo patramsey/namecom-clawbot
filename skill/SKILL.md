@@ -1,7 +1,7 @@
 ---
 name: namecom-registrar
 description: Autonomous domain registrar and DNS manager using the Name.com CORE API. Use when the user asks to search for, buy, or register domains, manage DNS records (A, AAAA, CNAME, MX, TXT), solve ACME DNS-01 challenges for TLS certificates, or update dynamic DNS for residential/home-lab setups.
-metadata: {"openclaw": {"requires": {"bins": ["node", "npm"], "env": ["NAMECOM_USERNAME", "NAMECOM_TOKEN", "NAMECOM_USERNAME_TEST", "NAMECOM_TOKEN_TEST"]}, "primaryEnv": "NAMECOM_TOKEN", "homepage": "https://github.com/patramsey/namecom-clawbot", "install": [{"id": "node", "kind": "node", "package": "namecom-clawbot", "bins": ["namecom-clawbot"], "label": "Install namecom-clawbot MCP server (npm)"}]}}
+metadata: {"openclaw": {"requires": {"bins": ["node", "npm"], "env": ["NAMECOM_USERNAME", "NAMECOM_TOKEN"], "envOptional": ["NAMECOM_USERNAME_TEST", "NAMECOM_TOKEN_TEST"]}, "primaryEnv": "NAMECOM_TOKEN", "homepage": "https://github.com/patramsey/namecom-clawbot", "install": [{"id": "node", "kind": "node", "package": "namecom-clawbot", "bins": ["namecom-clawbot"], "label": "Install namecom-clawbot MCP server (npm)"}]}}
 ---
 
 # Name.com Domain Registrar & DNS Manager

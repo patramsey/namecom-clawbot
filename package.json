@@ -6,7 +6,7 @@
   "author": "Pat Ramsey",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/patramsey/namecom-clawbot.git"
+    "url": "https://github.com/patramsey/namecom-clawbot"
   },
   "keywords": [
     "mcp",

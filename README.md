@@ -10,7 +10,7 @@ Works with new purchases **and** domains you already own at Name.com. Ships with
 
 1. **A name.com account** — [name.com/account/signup](https://www.name.com/account/signup)
 2. **An API token** — generate one at **Account > Security > API Access**
-3. **Account funding** — domain purchases are charged to your name.com account balance or default payment method. Make sure your account has a valid card on file or sufficient prepaid credit **before** asking the agent to register anything. Purchasing name.com account credit is recommended to prevent any issues with credit card processing. The `register_domain` tool is zero-click; there is no confirmation prompt.
+3. **Account funding** — domain purchases are charged to your name.com account balance or default payment method. Prefer **Name.com account credit** over attaching a credit card to cap potential loss if the API token is misused. Use `register_domain` with **`dryRun: true`** first to get a quote, then with `dryRun: false` after user confirmation to complete the purchase.
 
 For sandbox testing, create credentials at [dev.name.com](https://dev.name.com) instead.
 
@@ -59,7 +59,7 @@ Add to your Cursor / Claude Desktop / OpenClaw MCP config:
 |---|---|
 | `check_domain` | Check availability and pricing for up to 50 specific domains |
 | `search_domain` | Keyword-based domain suggestions with pricing across multiple TLDs |
-| `register_domain` | Zero-click purchase with WHOIS privacy and registrar lock enabled by default |
+| `register_domain` | Purchase a domain (use `dryRun: true` then `dryRun: false` for confirmation); enables WHOIS privacy and registrar lock |
 | `list_domains` | List all domains in the account with status and expiration |
 | `get_domain` | Get full details for a single domain (contacts, nameservers, pricing) |
 | `set_nameservers` | Point a domain to a different DNS provider (Cloudflare, Route 53, etc.) |
@@ -85,8 +85,8 @@ Every tool works on domains already in your name.com account — not just newly 
 
 ## Important notes
 
-- **Purchases are real.** In production mode, `register_domain` will charge your account immediately. Use sandbox credentials while testing.
-- **Fund your account first.** Ensure your name.com account has a valid payment method before attempting any domain purchases.
+- **Purchases are real.** In production mode, `register_domain` (with `dryRun: false`) will charge your account. Use the confirmation flow: call with `dryRun: true`, show the quote, get user confirmation, then call with `dryRun: false`. Use sandbox credentials while testing.
+- **Fund your account first.** Prefer Name.com account credit over a credit card to limit exposure. Ensure your account has a valid payment method or sufficient credit before purchasing.
 - **Rate limits.** The name.com API allows 20 requests/second and 3,000 requests/hour.
 
 ## SOUL.md

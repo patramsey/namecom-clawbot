@@ -24,7 +24,7 @@ Generate tokens at **Account > Security > API Access**. For sandbox testing, cre
 ## Security & trust
 
 - **Token scope:** The API token has full account access (domains, DNS, purchases). Name.com does not document per-operation token scopes; use sandbox credentials until you have verified behavior. You can harden production tokens with **IP whitelisting** (Account > Security > API Access) to limit where the token can be used.
-- **Purchases:** `register_domain` performs a zero-click purchase using the account’s default payment profile (no extra confirmation step). Verify payment settings and test with sandbox first; for production, consider using a payment method with spending limits or alerts.
+- **Purchases:** `register_domain` can charge the account’s default payment profile. Use the **confirmation flow**: call `register_domain` with **`dryRun: true`** first, show the user the quote, get explicit confirmation, then call again with **`dryRun: false`** to complete. Verify payment settings and test with sandbox first. For production, **fund the account with Name.com account credit** instead of attaching a credit card when possible — that caps potential loss if the token is misused. Otherwise use a payment method with spending limits or alerts.
 - **Install & supply chain:** This skill installs the npm package `namecom-clawbot`. The package is published with **signed npm provenance** (GitHub Actions), so you can verify on the [npm package page](https://www.npmjs.com/package/namecom-clawbot) that the build matches the [GitHub repo](https://github.com/patramsey/namecom-clawbot). Review the repo and package before installing. To limit risk, run the MCP server in an isolated environment (e.g. container or VM) and use sandbox credentials first.
 
 ## Running the Server
@@ -68,11 +68,11 @@ Keyword-based domain search. Provide a keyword and optionally filter by TLDs to 
 
 ### `register_domain`
 
-Zero-click domain purchase using the account's default payment profile. Automatically enables:
-- **WHOIS Privacy** — personal info hidden from public WHOIS
-- **Registrar Lock** — prevents unauthorized transfers
+Purchases and registers a domain, charging the account’s default payment profile. Automatically enables WHOIS privacy and registrar lock.
 
-For premium domains, pass the `purchasePrice` and `purchaseType` values from `check_domain`.
+**Recommended confirmation flow:** Call with **`dryRun: true`** first; the tool returns a quote (domain, years, estimated cost) and does not charge. Show the user the quote, get explicit confirmation, then call again with **`dryRun: false`** and the same parameters to complete the purchase. This avoids accidental charges.
+
+For premium domains, pass the `purchasePrice` and `purchaseType` values from `check_domain`. For safety, prefer funding the Name.com account with **account credit** rather than a credit card when possible.
 
 ### `list_domains`
 

@@ -5,7 +5,7 @@
  * Tools:
  *   check_domain          – check availability + pricing
  *   search_domain         – keyword-based domain suggestions
- *   register_domain       – zero-click domain purchase
+ *   register_domain       – domain purchase (supports dryRun for confirmation)
  *   list_domains          – list all domains in the account
  *   get_domain            – get details for a single domain
  *   set_nameservers       – change nameservers for a domain
@@ -114,8 +114,8 @@ or find a domain name but doesn't have exact names in mind yet. Optionally filte
 server.tool(
   "register_domain",
   `Purchase and register a domain name through Name.com.
-Charges the user's default payment profile (zero-click).
-Automatically enables WHOIS privacy and registrar lock for security.
+Charges the account's default payment profile. Automatically enables WHOIS privacy and registrar lock.
+Recommended: call with dryRun: true first, show the user the quote, get explicit confirmation, then call with dryRun: false to complete.
 For premium domains, you MUST first call check_domain to obtain the purchasePrice and purchaseType, then pass them here.`,
   {
     domainName: z.string().describe("The domain to register, e.g. \"mysite.dev\""),
@@ -128,10 +128,48 @@ For premium domains, you MUST first call check_domain to obtain the purchasePric
       .string()
       .optional()
       .describe("Required for premium domains — the purchaseType from check_domain"),
+    dryRun: z
+      .boolean()
+      .optional()
+      .default(false)
+      .describe("If true, do not charge; return a purchase quote and instruct to call again with dryRun: false after user confirmation"),
   },
-  async ({ domainName, years, purchasePrice, purchaseType }) => {
+  async ({ domainName, years, purchasePrice, purchaseType, dryRun }) => {
     try {
       const client = clientFromEnv();
+
+      if (dryRun) {
+        const avail = await client.checkAvailability([domainName]);
+        const result = avail.results?.[0];
+        if (!result) {
+          return ok({
+            dryRun: true,
+            message: "Could not get pricing for this domain.",
+            domainName,
+          });
+        }
+        if (!result.purchasable) {
+          return ok({
+            dryRun: true,
+            message: "Domain is not available for purchase.",
+            domainName,
+            reason: result.reason ?? "Not purchasable",
+          });
+        }
+        const estimatedPrice = result.purchasePrice ?? result.renewalPrice ?? null;
+        return ok({
+          dryRun: true,
+          message: "No charge made. Show this quote to the user. After explicit user confirmation, call register_domain again with the same parameters and dryRun: false to complete the purchase.",
+          domainName,
+          years,
+          purchasePrice: result.purchasePrice,
+          renewalPrice: result.renewalPrice,
+          purchaseType: result.purchaseType,
+          estimatedChargeUsd: estimatedPrice != null ? (estimatedPrice * years).toFixed(2) : null,
+          premium: result.premium ?? false,
+        });
+      }
+
       const createRes = await client.createDomain({
         domain: { domainName },
         years,

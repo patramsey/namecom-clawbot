@@ -1,6 +1,6 @@
 # namecom-clawbot
 
-MCP server that gives an AI agent autonomous control over domain registration and DNS management through the [Name.com CORE API](https://docs.name.com/api/v1/overview).
+MCP server that gives an AI agent access to domain registration and DNS management through the [Name.com CORE API](https://docs.name.com/api/v1/overview).
 
 Works with new purchases **and** domains you already own at Name.com. Ships with an [AgentSkills](https://agentskills.io/)-compatible `SKILL.md` and is published on [ClawHub](https://clawhub.ai/patramsey/namecom-registrar) for one-command install into OpenClaw.
 
@@ -10,7 +10,7 @@ Works with new purchases **and** domains you already own at Name.com. Ships with
 
 1. **A name.com account** — [name.com/account/signup](https://www.name.com/account/signup)
 2. **An API token** — generate one at **Account > Security > API Access**
-3. **Account funding** — domain purchases are charged to your name.com account balance or default payment method. Prefer **Name.com account credit** over attaching a credit card to cap potential loss if the API token is misused. Use `register_domain` with **`dryRun: true`** first to get a quote, then with `dryRun: false` after user confirmation to complete the purchase.
+3. **Account funding** — domain purchases are charged to your name.com account balance or default payment method. Prefer **Name.com account credit** over attaching a credit card to limit exposure if credentials are ever compromised. `register_domain` enforces a confirmation flow: `dryRun: true` returns a quote and a **6-digit code**; the user must supply that code to complete the purchase.
 
 For sandbox testing, create credentials at [dev.name.com](https://dev.name.com) instead.
 
@@ -59,7 +59,7 @@ Add to your Cursor / Claude Desktop / OpenClaw MCP config:
 |---|---|
 | `check_domain` | Check availability and pricing for up to 50 specific domains |
 | `search_domain` | Keyword-based domain suggestions with pricing across multiple TLDs |
-| `register_domain` | Purchase a domain (use `dryRun: true` then `dryRun: false` for confirmation); enables WHOIS privacy and registrar lock |
+| `register_domain` | Purchase a domain; `dryRun: true` returns a quote + 6-digit code, `dryRun: false` + code completes the purchase; enables WHOIS privacy and registrar lock |
 | `list_domains` | List all domains in the account with status and expiration |
 | `get_domain` | Get full details for a single domain (contacts, nameservers, pricing) |
 | `set_nameservers` | Point a domain to a different DNS provider (Cloudflare, Route 53, etc.) |
@@ -85,7 +85,7 @@ Every tool works on domains already in your name.com account — not just newly 
 
 ## Important notes
 
-- **Purchases are real.** In production mode, `register_domain` (with `dryRun: false`) will charge your account. Use the confirmation flow: call with `dryRun: true`, show the quote, get user confirmation, then call with `dryRun: false`. Use sandbox credentials while testing.
+- **Purchases are real.** In production mode, `register_domain` will charge your account. The confirmation flow is enforced in code: `dryRun: true` returns a quote and a **6-digit confirmation code** (valid 10 min, single-use). The user must supply that code to complete the purchase — calling `dryRun: false` without it returns an error. Use sandbox credentials while testing.
 - **Fund your account first.** Prefer Name.com account credit over a credit card to limit exposure. Ensure your account has a valid payment method or sufficient credit before purchasing.
 - **Rate limits.** The name.com API allows 20 requests/second and 3,000 requests/hour.
 

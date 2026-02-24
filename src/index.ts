@@ -14,6 +14,7 @@
  *   update_ddns           – dynamic DNS A-record updater
  */
 
+import { randomInt } from "crypto";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
@@ -24,6 +25,28 @@ import {
   NamecomApiError,
 } from "./api.js";
 import type { CreateRecordRequest } from "./api.js";
+
+// ---------------------------------------------------------------------------
+// Purchase token store — enforces human-in-the-loop for domain purchases
+// ---------------------------------------------------------------------------
+
+interface PendingPurchase {
+  domainName: string;
+  years: number;
+  purchasePrice?: number;
+  purchaseType?: string;
+  expiresAt: number;
+}
+
+const pendingPurchases = new Map<string, PendingPurchase>();
+const PURCHASE_TOKEN_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+function cleanExpiredTokens() {
+  const now = Date.now();
+  for (const [k, v] of pendingPurchases) {
+    if (v.expiresAt < now) pendingPurchases.delete(k);
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -115,7 +138,7 @@ server.tool(
   "register_domain",
   `Purchase and register a domain name through Name.com.
 Charges the account's default payment profile. Automatically enables WHOIS privacy and registrar lock.
-Recommended: call with dryRun: true first, show the user the quote, get explicit confirmation, then call with dryRun: false to complete.
+Required: call with dryRun: true first to get a quote and a 6-digit purchaseToken, show both to the user, get explicit confirmation, then call with dryRun: false and the purchaseToken to complete. The purchase will be rejected without a valid token.
 For premium domains, you MUST first call check_domain to obtain the purchasePrice and purchaseType, then pass them here.`,
   {
     domainName: z.string().describe("The domain to register, e.g. \"mysite.dev\""),
@@ -132,9 +155,13 @@ For premium domains, you MUST first call check_domain to obtain the purchasePric
       .boolean()
       .optional()
       .default(false)
-      .describe("If true, do not charge; return a purchase quote and instruct to call again with dryRun: false after user confirmation"),
+      .describe("If true, do not charge; return a purchase quote and purchaseToken. Call again with dryRun: false and the purchaseToken after user confirmation."),
+    purchaseToken: z
+      .string()
+      .optional()
+      .describe("6-digit confirmation code returned by a prior dryRun: true call. Required to complete the purchase. The user must supply this code after seeing the quote."),
   },
-  async ({ domainName, years, purchasePrice, purchaseType, dryRun }) => {
+  async ({ domainName, years, purchasePrice, purchaseType, dryRun, purchaseToken }) => {
     try {
       const client = clientFromEnv();
 
@@ -157,9 +184,18 @@ For premium domains, you MUST first call check_domain to obtain the purchasePric
           });
         }
         const estimatedPrice = result.purchasePrice ?? result.renewalPrice ?? null;
+        cleanExpiredTokens();
+        const token = String(randomInt(100000, 1000000)); // 6-digit code, e.g. "847291"
+        pendingPurchases.set(token, {
+          domainName,
+          years,
+          purchasePrice,
+          purchaseType,
+          expiresAt: Date.now() + PURCHASE_TOKEN_TTL_MS,
+        });
         return ok({
           dryRun: true,
-          message: "No charge made. Show this quote to the user. After explicit user confirmation, call register_domain again with the same parameters and dryRun: false to complete the purchase.",
+          message: "No charge made. Show this quote to the user and get explicit confirmation before proceeding. Then call register_domain again with dryRun: false and the purchaseToken below.",
           domainName,
           years,
           purchasePrice: result.purchasePrice,
@@ -167,8 +203,35 @@ For premium domains, you MUST first call check_domain to obtain the purchasePric
           purchaseType: result.purchaseType,
           estimatedChargeUsd: estimatedPrice != null ? (estimatedPrice * years).toFixed(2) : null,
           premium: result.premium ?? false,
+          purchaseToken: token,
+          purchaseTokenExpiresInMinutes: 10,
         });
       }
+
+      // Validate purchase token (enforces human-in-the-loop)
+      if (!purchaseToken) {
+        return fail(
+          "purchaseToken is required to complete a purchase. Call register_domain with dryRun: true first to get a quote and token, confirm with the user, then call again with dryRun: false and the purchaseToken.",
+        );
+      }
+      cleanExpiredTokens();
+      const pending = pendingPurchases.get(purchaseToken);
+      if (!pending) {
+        return fail("Invalid or expired purchaseToken. Call register_domain with dryRun: true again to get a new token.");
+      }
+      if (pending.domainName !== domainName) {
+        return fail(`purchaseToken was issued for '${pending.domainName}', not '${domainName}'.`);
+      }
+      if (pending.years !== years) {
+        return fail(`purchaseToken was issued for ${pending.years} year(s), not ${years}.`);
+      }
+      if (pending.purchasePrice !== purchasePrice) {
+        return fail(`purchaseToken was issued with purchasePrice ${pending.purchasePrice ?? "unset"}, not ${purchasePrice ?? "unset"}.`);
+      }
+      if (pending.purchaseType !== purchaseType) {
+        return fail(`purchaseToken was issued with purchaseType '${pending.purchaseType ?? "unset"}', not '${purchaseType ?? "unset"}'.`);
+      }
+      pendingPurchases.delete(purchaseToken); // Single-use
 
       const createRes = await client.createDomain({
         domain: { domainName },

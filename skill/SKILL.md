@@ -1,12 +1,12 @@
 ---
 name: namecom-registrar
-description: Autonomous domain registrar and DNS manager using the Name.com CORE API. Use when the user asks to search for, buy, or register domains, manage DNS records (A, AAAA, CNAME, MX, TXT), solve ACME DNS-01 challenges for TLS certificates, or update dynamic DNS for residential/home-lab setups.
+description: Domain registrar and DNS manager using the Name.com CORE API. Use when the user asks to search for, buy, or register domains, manage DNS records (A, AAAA, CNAME, MX, TXT), solve ACME DNS-01 challenges for TLS certificates, or update dynamic DNS for residential/home-lab setups.
 metadata: {"openclaw": {"requires": {"bins": ["node", "npm"], "env": ["NAMECOM_USERNAME", "NAMECOM_TOKEN"], "envOptional": ["NAMECOM_USERNAME_TEST", "NAMECOM_TOKEN_TEST"]}, "primaryEnv": "NAMECOM_TOKEN", "homepage": "https://github.com/patramsey/namecom-clawbot", "install": [{"id": "node", "kind": "node", "package": "namecom-clawbot", "bins": ["namecom-clawbot"], "label": "Install namecom-clawbot MCP server (npm)"}]}}
 ---
 
 # Name.com Domain Registrar & DNS Manager
 
-MCP server providing nine tools for autonomous domain registration and DNS management against the **Name.com CORE API (v1)**.
+MCP server providing nine tools for domain registration and DNS management against the **Name.com CORE API (v1)**.
 
 ## Environment Variables
 
@@ -23,8 +23,8 @@ Generate tokens at **Account > Security > API Access**. For sandbox testing, cre
 
 ## Security & trust
 
-- **Token scope:** The API token has full account access (domains, DNS, purchases). Name.com does not document per-operation token scopes; use sandbox credentials until you have verified behavior. You can harden production tokens with **IP whitelisting** (Account > Security > API Access) to limit where the token can be used.
-- **Purchases:** `register_domain` can charge the account’s default payment profile. Use the **confirmation flow**: call `register_domain` with **`dryRun: true`** first, show the user the quote, get explicit confirmation, then call again with **`dryRun: false`** to complete. Verify payment settings and test with sandbox first. For production, **fund the account with Name.com account credit** instead of attaching a credit card when possible — that caps potential loss if the token is misused. Otherwise use a payment method with spending limits or alerts.
+- **Token scope:** Authenticates via standard Name.com API token. Name.com does not currently offer per-operation token scopes; the recommended hardening is **IP whitelisting** (Account > Security > API Access) to restrict the token to your deployment environment. Use sandbox credentials during initial setup.
+- **Purchases:** `register_domain` enforces a **code-level human-in-the-loop gate** — it is not possible to complete a purchase without first calling `dryRun: true`. The dry-run response includes a one-time `purchaseToken` (6-digit code, valid 10 minutes, single-use, bound to the specific domain). The actual purchase call requires passing that token back; without it the tool returns an error. This is not just a documented guideline — the token gate is enforced in code. For production, **fund the account with Name.com account credit** instead of attaching a credit card when possible — that limits exposure if credentials are ever compromised. Otherwise use a payment method with spending limits or alerts.
 - **Install & supply chain:** This skill installs the npm package `namecom-clawbot`. The package is published with **signed npm provenance** (GitHub Actions), so you can verify on the [npm package page](https://www.npmjs.com/package/namecom-clawbot) that the build matches the [GitHub repo](https://github.com/patramsey/namecom-clawbot). Review the repo and package before installing. To limit risk, run the MCP server in an isolated environment (e.g. container or VM) and use sandbox credentials first.
 
 ## Running the Server
@@ -68,9 +68,15 @@ Keyword-based domain search. Provide a keyword and optionally filter by TLDs to 
 
 ### `register_domain`
 
-Purchases and registers a domain, charging the account’s default payment profile. Automatically enables WHOIS privacy and registrar lock.
+Provisions and registers a domain via the account’s payment settings. Automatically enables WHOIS privacy and registrar lock.
 
-**Recommended confirmation flow:** Call with **`dryRun: true`** first; the tool returns a quote (domain, years, estimated cost) and does not charge. Show the user the quote, get explicit confirmation, then call again with **`dryRun: false`** and the same parameters to complete the purchase. This avoids accidental charges.
+**Required confirmation flow (enforced in code):**
+
+1. Call with **`dryRun: true`** — returns a quote (domain, years, estimated cost) plus a `purchaseToken`. No charge made.
+2. Show the user the quote and get explicit confirmation.
+3. Call again with **`dryRun: false`** and pass the `purchaseToken` from step 1.
+
+The `purchaseToken` is a one-time **6-digit numeric code** (e.g. `847291`) valid for 10 minutes and bound to the specific domain name — easy to relay via Telegram, WhatsApp, or read aloud. Passing an incorrect, expired, or already-used token returns an error. You cannot skip to step 3 — there is no way to complete a purchase without a valid token from a prior dry-run.
 
 For premium domains, pass the `purchasePrice` and `purchaseType` values from `check_domain`. For safety, prefer funding the Name.com account with **account credit** rather than a credit card when possible.
 
